@@ -6,8 +6,8 @@
 #include <string>
 #include <unordered_map>
 
-string AESencrypt(string iv, string pt);
+//void KeyExpansion(std::string key, std::string k[44]);
 
-string AESdecrypt(string iv, string ct);
+std::string AESencrypt(std::string iv, std::string pt);
 
-void hex_toLL(string hex, long long int out);
+std::string AESdecrypt(std::string iv, std::string ct);

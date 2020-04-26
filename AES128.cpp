@@ -2,394 +2,433 @@
 
 using namespace std;
 
-typedef bitset<8> byte;
-typedef bitset<32> word;
-
-extern byte S_Box[16][16] = {
-    {0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76},
-    {0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0},
-    {0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15},
-    {0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75},
-    {0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0, 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84},
-    {0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B, 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF},
-    {0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85, 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8},
-    {0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5, 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2},
-    {0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17, 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73},
-    {0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88, 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB},
-    {0xE0, 0x32, 0x3A, 0x0A, 0x49, 0x06, 0x24, 0x5C, 0xC2, 0xD3, 0xAC, 0x62, 0x91, 0x95, 0xE4, 0x79},
-    {0xE7, 0xC8, 0x37, 0x6D, 0x8D, 0xD5, 0x4E, 0xA9, 0x6C, 0x56, 0xF4, 0xEA, 0x65, 0x7A, 0xAE, 0x08},
-    {0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xA6, 0xB4, 0xC6, 0xE8, 0xDD, 0x74, 0x1F, 0x4B, 0xBD, 0x8B, 0x8A},
-    {0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E},
-    {0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF},
-    {0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16}
+string S_Box[16][16] = {
+    {"63", "7C", "77", "7B", "F2", "6B", "6F", "C5", "30", "01", "67", "2B", "FE", "D7", "AB", "76"},
+    {"CA", "82", "C9", "7D", "FA", "59", "47", "F0", "AD", "D4", "A2", "AF", "9C", "A4", "72", "C0"},
+    {"B7", "FD", "93", "26", "36", "3F", "F7", "CC", "34", "A5", "E5", "F1", "71", "D8", "31", "15"},
+    {"04", "C7", "23", "C3", "18", "96", "05", "9A", "07", "12", "80", "E2", "EB", "27", "B2", "75"},
+    {"09", "83", "2C", "1A", "1B", "6E", "5A", "A0", "52", "3B", "D6", "B3", "29", "E3", "2F", "84"},
+    {"53", "D1", "00", "ED", "20", "FC", "B1", "5B", "6A", "CB", "BE", "39", "4A", "4C", "58", "CF"},
+    {"D0", "EF", "AA", "FB", "43", "4D", "33", "85", "45", "F9", "02", "7F", "50", "3C", "9F", "A8"},
+    {"51", "A3", "40", "8F", "92", "9D", "38", "F5", "BC", "B6", "DA", "21", "10", "FF", "F3", "D2"},
+    {"CD", "0C", "13", "EC", "5F", "97", "44", "17", "C4", "A7", "7E", "3D", "64", "5D", "19", "73"},
+    {"60", "81", "4F", "DC", "22", "2A", "90", "88", "46", "EE", "B8", "14", "DE", "5E", "0B", "DB"},
+    {"E0", "32", "3A", "0A", "49", "06", "24", "5C", "C2", "D3", "AC", "62", "91", "95", "E4", "79"},
+    {"E7", "C8", "37", "6D", "8D", "D5", "4E", "A9", "6C", "56", "F4", "EA", "65", "7A", "AE", "08"},
+    {"BA", "78", "25", "2E", "1C", "A6", "B4", "C6", "E8", "DD", "74", "1F", "4B", "BD", "8B", "8A"},
+    {"70", "3E", "B5", "66", "48", "03", "F6", "0E", "61", "35", "57", "B9", "86", "C1", "1D", "9E"},
+    {"E1", "F8", "98", "11", "69", "D9", "8E", "94", "9B", "1E", "87", "E9", "CE", "55", "28", "DF"},
+    {"8C", "A1", "89", "0D", "BF", "E6", "42", "68", "41", "99", "2D", "0F", "B0", "54", "BB", "16"}
 };
 
-extern byte RS_Box[16][16] = {
-    {0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb},
-    {0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb},
-    {0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e},
-    {0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25},
-    {0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92},
-    {0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84},
-    {0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06},
-    {0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b},
-    {0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73},
-    {0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e},
-    {0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b},
-    {0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4},
-    {0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f},
-    {0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef},
-    {0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61},
-    {0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d}
+string RS_Box[16][16] = {
+    {"52", "09", "6a", "d5", "30", "36", "a5", "38", "bf", "40", "a3", "9e", "81", "f3", "d7", "fb"},
+    {"7c", "e3", "39", "82", "9b", "2f", "ff", "87", "34", "8e", "43", "44", "c4", "de", "e9", "cb"},
+    {"54", "7b", "94", "32", "a6", "c2", "23", "3d", "ee", "4c", "95", "0b", "42", "fa", "c3", "4e"},
+    {"08", "2e", "a1", "66", "28", "d9", "24", "b2", "76", "5b", "a2", "49", "6d", "8b", "d1", "25"},
+    {"72", "f8", "f6", "64", "86", "68", "98", "16", "d4", "a4", "5c", "cc", "5d", "65", "b6", "92"},
+    {"6c", "70", "48", "50", "fd", "ed", "b9", "da", "5e", "15", "46", "57", "a7", "8d", "9d", "84"},
+    {"90", "d8", "ab", "00", "8c", "bc", "d3", "0a", "f7", "e4", "58", "05", "b8", "b3", "45", "06"},
+    {"d0", "2c", "1e", "8f", "ca", "3f", "0f", "02", "c1", "af", "bd", "03", "01", "13", "8a", "6b"},
+    {"3a", "91", "11", "41", "4f", "67", "dc", "ea", "97", "f2", "cf", "ce", "f0", "b4", "e6", "73"},
+    {"96", "ac", "74", "22", "e7", "ad", "35", "85", "e2", "f9", "37", "e8", "1c", "75", "df", "6e"},
+    {"47", "f1", "1a", "71", "1d", "29", "c5", "89", "6f", "b7", "62", "0e", "aa", "18", "be", "1b"},
+    {"fc", "56", "3e", "4b", "c6", "d2", "79", "20", "9a", "db", "c0", "fe", "78", "cd", "5a", "f4"},
+    {"1f", "dd", "a8", "33", "88", "07", "c7", "31", "b1", "12", "10", "59", "27", "80", "ec", "5f"},
+    {"60", "51", "7f", "a9", "19", "b5", "4a", "0d", "2d", "e5", "7a", "9f", "93", "c9", "9c", "ef"},
+    {"a0", "e0", "3b", "4d", "ae", "2a", "f5", "b0", "c8", "eb", "bb", "3c", "83", "53", "99", "61"},
+    {"17", "2b", "04", "7e", "ba", "77", "d6", "26", "e1", "69", "14", "63", "55", "21", "0c", "7d"}
 };
 
-extern word Rcon[10] = { 0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
-                 0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000 };
+string Rcon[10] = { "01000000", "02000000", "04000000", "08000000", "10000000",
+                 "20000000", "40000000", "80000000", "1b000000", "36000000" };
 
 
 
-word Word(byte& k1, byte& k2, byte& k3, byte& k4)
+string XOR(string a, string b)
 {
-    word result(0x00000000);
-    word temp;
-    temp = k1.to_ulong();  // K1
-    temp <<= 24;
-    result |= temp;
-    temp = k2.to_ulong();  // K2
-    temp <<= 16;
-    result |= temp;
-    temp = k3.to_ulong();  // K3
-    temp <<= 8;
-    result |= temp;
-    temp = k4.to_ulong();  // K4
-    result |= temp;
-    return result;
+    int l = a.length();
+    string c;
+    if (l == b.length())
+    {
+        for (int i = 0; i < l; ++i)
+        {
+            if (a[i] == '0')
+            {
+                if (b[i] == '0')
+                    c += '0';
+                else
+                    c += '1';
+            }
+            else
+            {
+                if (b[i] == '0')
+                    c += '1';
+                else
+                    c += '0';
+            }
+        }
+    }
+    return c;
 }
 
-word RotWord(word& rw)
+void RotWord(string& rw)
 {
-    word high = rw << 8;
-    word low = rw >> 24;
-    return high | low;
+    for (size_t i = 0; i < 8; i++)
+    {
+        char a = rw[0];
+        for (int i = 0; i < rw.length() - 1; i++)
+        {
+            rw[i] = rw[i + 1];
+        }
+        rw[rw.length() - 1] = a;
+    }
 }
 
-word SubWord(word& sw)
+void HtoB(string& a)
 {
-    word temp;
+    unordered_map<char, string> map;
+    map['0'] = "0000";
+    map['1'] = "0001";
+    map['2'] = "0010";
+    map['3'] = "0011";
+    map['4'] = "0100";
+    map['5'] = "0101";
+    map['6'] = "0110";
+    map['7'] = "0111";
+    map['8'] = "1000";
+    map['9'] = "1001";
+    map['a'] = "1010";
+    map['b'] = "1011";
+    map['c'] = "1100";
+    map['d'] = "1101";
+    map['e'] = "1110";
+    map['f'] = "1111";
+    map['A'] = "1010";
+    map['B'] = "1011";
+    map['C'] = "1100";
+    map['D'] = "1101";
+    map['E'] = "1110";
+    map['F'] = "1111";
+    string out = "";
+    int l = a.length();
+    for (int i = 0; i < l; i++)
+    {
+        out += map[a[i]];
+    }
+    a = out;
+}
+
+void BtoH(string& a)
+{
+    unordered_map<string, string> map;
+    map["0000"] = "0";
+    map["0001"] = "1";
+    map["0010"] = "2";
+    map["0011"] = "3";
+    map["0100"] = "4";
+    map["0101"] = "5";
+    map["0110"] = "6";
+    map["0111"] = "7";
+    map["1000"] = "8";
+    map["1001"] = "9";
+    map["1010"] = "A";
+    map["1011"] = "B";
+    map["1100"] = "C";
+    map["1101"] = "D";
+    map["1110"] = "E";
+    map["1111"] = "F";
+    string out = "";
+    int l = a.length();
+    for (int i = 0; i < l; i += 4)
+    {
+        out += map[a.substr(i, 4)];
+    }
+    a = out;
+}
+
+string SubWord(string& sw)
+{
+    string temp;
     for (int i = 0; i < 32; i += 8)
     {
-        int row = sw[i + 7] * 8 + sw[i + 6] * 4 + sw[i + 5] * 2 + sw[i + 4];
-        int col = sw[i + 3] * 8 + sw[i + 2] * 4 + sw[i + 1] * 2 + sw[i];
-        byte val = S_Box[row][col];
+        int col = (sw[i + 7] - '0') + (sw[i + 6] - '0') * 2 + (sw[i + 5] - '0') * 4 + (sw[i + 4] - '0') * 8;
+        int row = (sw[i + 3] - '0') + (sw[i + 2] - '0') * 2 + (sw[i + 1] - '0') * 4 + (sw[i] - '0') * 8;
+        string val = S_Box[row][col];
+        HtoB(val);
         for (int j = 0; j < 8; ++j)
-            temp[i + j] = val[j];
+            temp += val[j];
     }
     return temp;
 }
 
-void KeyExpansion(byte key[16], word w[44])
+void KeyExpansion(string key, string k[44])
 {
-    word temp;
-    int i = 0;
-    while (i < 4)
+    HtoB(key);
+    for (int i = 0; i < 4; i++)
     {
-        w[i] = Word(key[4 * i], key[4 * i + 1], key[4 * i + 2], key[4 * i + 3]);
-        ++i;
+        k[i] = key.substr(32 * i, 32);
     }
 
-    i = 4;
+    int i = 4;
 
-    while (i < 4 * (10 + 1))
+    while (i < 44)
     {
-        temp = w[i - 1];
         if (i % 4 == 0)
         {
-            temp = RotWord(temp);
-            w[i] = w[i - 4] ^ SubWord(temp) ^ Rcon[i / 4 - 1];
+            string temp;
+            temp = k[i - 1];
+            RotWord(temp);
+            string b = Rcon[i / 4 - 1];
+            HtoB(b);
+            temp = SubWord(temp);
+            temp = XOR(k[i - 4], temp);
+            k[i] = XOR(temp, b);
         }
         else
-            w[i] = w[i - 4] ^ temp;
+            k[i] = XOR(k[i - 4], k[i - 1]);
         ++i;
     }
 }
 
 
 
-void SubBytes(byte mtx[4 * 4])
+void SubBytes(string& mtx)
 {
+    string out;
     for (int i = 0; i < 16; ++i)
     {
-        int row = mtx[i][7] * 8 + mtx[i][6] * 4 + mtx[i][5] * 2 + mtx[i][4];
-        int col = mtx[i][3] * 8 + mtx[i][2] * 4 + mtx[i][1] * 2 + mtx[i][0];
-        mtx[i] = S_Box[row][col];
+        int col = (mtx[8 * i + 7] - '0') * 1 + (mtx[8 * i + 6] - '0') * 2 + (mtx[8 * i + 5] - '0') * 4 + (mtx[8 * i + 4] - '0') * 8;
+        int row = (mtx[8 * i + 3] - '0') * 1 + (mtx[8 * i + 2] - '0') * 2 + (mtx[8 * i + 1] - '0') * 4 + (mtx[8 * i + 0] - '0') * 8;
+        string val = S_Box[row][col];
+        HtoB(val);
+        out += val;
     }
+    mtx = out;
 }
 
-void ShiftRows(byte mtx[4 * 4])
+void ShiftRows(string& mtx)
 {
-    byte temp = mtx[4];
-    for (int i = 0; i < 3; ++i)
-        mtx[i + 4] = mtx[i + 5];
-    mtx[7] = temp;
+    string temp1 = mtx.substr(32, 32);
+    RotWord(temp1);
+    string temp2 = mtx.substr(64, 32);
+    RotWord(temp2);
+    RotWord(temp2);
+    string temp3 = mtx.substr(96, 32);
+    RotWord(temp3);
+    RotWord(temp3);
+    RotWord(temp3);
+    string temp = mtx.substr(0, 32);
+    mtx = temp + temp1 + temp2 + temp3;
+}
 
-    for (int i = 0; i < 2; ++i)
+string GFMul(string a, string b) 
+{
+    string x1b = "1b";
+    HtoB(x1b);
+    int l = a.length();
+    string c, out;
+    out = "00";
+    HtoB(out);
+    for (int i = 0; i < l; i++)
     {
-        temp = mtx[i + 8];
-        mtx[i + 8] = mtx[i + 10];
-        mtx[i + 10] = temp;
-    }
-
-    temp = mtx[15];
-    for (int i = 3; i > 0; --i)
-        mtx[i + 12] = mtx[i + 11];
-    mtx[12] = temp;
-}
-
-byte GFMul(byte a, byte b) 
-{
-    byte p = 0;
-    byte hi_bit_set;
-    for (int counter = 0; counter < 8; counter++) {
-        if ((b & byte(1)) != 0) {
-            p ^= a;
+        c = a;
+        if (b[i] == '1')
+        {
+            for (int j = 0; j < (l - i - 1); j++)
+            {
+                c += '0';
+                if (c[0] == '0')
+                {
+                    c = c.substr(1, c.length() - 1);
+                }
+                else
+                {
+                    c = c.substr(1, c.length() - 1);
+                    c = XOR(c, x1b);
+                }
+            }
+            out = XOR(out, c);
         }
-        hi_bit_set = (byte)(a & byte(0x80));
-        a <<= 1;
-        if (hi_bit_set != 0) {
-            a ^= 0x1b;
-        }
-        b >>= 1;
     }
-    return p;
+    return out;
 }
 
-void MixColumns(byte mtx[4 * 4])
+void transpose(string& mtx)
 {
-    byte arr[4];
-    for (int i = 0; i < 4; ++i)
+    BtoH(mtx);
+    string m;
+    for (int i = 0; i < 32; i++)
     {
-        for (int j = 0; j < 4; ++j)
-            arr[j] = mtx[i + j * 4];
-
-        mtx[i] = GFMul(0x02, arr[0]) ^ GFMul(0x03, arr[1]) ^ arr[2] ^ arr[3];
-        mtx[i + 4] = arr[0] ^ GFMul(0x02, arr[1]) ^ GFMul(0x03, arr[2]) ^ arr[3];
-        mtx[i + 8] = arr[0] ^ arr[1] ^ GFMul(0x02, arr[2]) ^ GFMul(0x03, arr[3]);
-        mtx[i + 12] = GFMul(0x03, arr[0]) ^ arr[1] ^ arr[2] ^ GFMul(0x02, arr[3]);
-    }
-}
-
-void AddRoundKey(byte mtx[4 * 4], word k[4])
-{
-    for (int i = 0; i < 4; ++i)
-    {
-        word k1 = k[i] >> 24;
-        word k2 = (k[i] << 8) >> 24;
-        word k3 = (k[i] << 16) >> 24;
-        word k4 = (k[i] << 24) >> 24;
-
-        mtx[i] = mtx[i] ^ byte(k1.to_ulong());
-        mtx[i + 4] = mtx[i + 4] ^ byte(k2.to_ulong());
-        mtx[i + 8] = mtx[i + 8] ^ byte(k3.to_ulong());
-        mtx[i + 12] = mtx[i + 12] ^ byte(k4.to_ulong());
-    }
-}
-
-void transpose(byte mtx[16])
-{
-    byte m[16];
-    for (int i = 0; i < 16; i++)
-    {
-        m[i] = mtx[i];
+        m += mtx[i];
     }
     for (int i = 0; i < 4; i++)
     {
-        mtx[4 * i + 0] = m[i + 0];
-        mtx[4 * i + 1] = m[i + 4];
-        mtx[4 * i + 2] = m[i + 8];
-        mtx[4 * i + 3] = m[i + 12];
+        mtx[8 * i + 0] = m[2 * i + 0];
+        mtx[8 * i + 1] = m[2 * i + 1];
+        mtx[8 * i + 2] = m[2 * i + 8];
+        mtx[8 * i + 3] = m[2 * i + 9];
+        mtx[8 * i + 4] = m[2 * i + 16];
+        mtx[8 * i + 5] = m[2 * i + 17];
+        mtx[8 * i + 6] = m[2 * i + 24];
+        mtx[8 * i + 7] = m[2 * i + 25];
     }
+    HtoB(mtx);
 }
 
-
-
-void InvSubBytes(byte mtx[4 * 4])
+void MixColumns(string& mtx)
 {
-    for (int i = 0; i < 16; ++i)
-    {
-        int row = mtx[i][7] * 8 + mtx[i][6] * 4 + mtx[i][5] * 2 + mtx[i][4];
-        int col = mtx[i][3] * 8 + mtx[i][2] * 4 + mtx[i][1] * 2 + mtx[i][0];
-        mtx[i] = RS_Box[row][col];
-    }
-}
-
-void InvMixColumns(byte mtx[4 * 4])
-{
-    byte arr[4];
+    string a = "02", b = "03";
+    HtoB(a);
+    HtoB(b);
+    string out1, out2, out3, out4;
+    transpose(mtx);
     for (int i = 0; i < 4; ++i)
     {
-        for (int j = 0; j < 4; ++j)
-            arr[j] = mtx[i + j * 4];
-
-        mtx[i] = GFMul(0x0e, arr[0]) ^ GFMul(0x0b, arr[1]) ^ GFMul(0x0d, arr[2]) ^ GFMul(0x09, arr[3]);
-        mtx[i + 4] = GFMul(0x09, arr[0]) ^ GFMul(0x0e, arr[1]) ^ GFMul(0x0b, arr[2]) ^ GFMul(0x0d, arr[3]);
-        mtx[i + 8] = GFMul(0x0d, arr[0]) ^ GFMul(0x09, arr[1]) ^ GFMul(0x0e, arr[2]) ^ GFMul(0x0b, arr[3]);
-        mtx[i + 12] = GFMul(0x0b, arr[0]) ^ GFMul(0x0d, arr[1]) ^ GFMul(0x09, arr[2]) ^ GFMul(0x0e, arr[3]);
+        out1 += XOR(XOR(XOR(GFMul(a, mtx.substr(32 * i + 0, 8)), GFMul(b, mtx.substr(32 * i + 8, 8))), mtx.substr(32 * i + 16, 8)), mtx.substr(32 * i + 24, 8));
+        out2 += XOR(XOR(XOR(mtx.substr(32 * i + 0, 8), GFMul(a, mtx.substr(32 * i + 8, 8))), GFMul(b, mtx.substr(32 * i + 16, 8))), mtx.substr(32 * i + 24, 8));
+        out3 += XOR(XOR(XOR(mtx.substr(32 * i + 0, 8), mtx.substr(32 * i + 8, 8)), GFMul(a, mtx.substr(32 * i + 16, 8))), GFMul(b, mtx.substr(32 * i + 24, 8)));
+        out4 += XOR(XOR(XOR(GFMul(b, mtx.substr(32 * i + 0, 8)), mtx.substr(32 * i + 8, 8)), mtx.substr(32 * i + 16, 8)), GFMul(a, mtx.substr(32 * i + 24, 8)));
     }
+    mtx = out1 + out2 + out3 + out4;
+}
+
+void AddRoundKey(string& mtx, string k[4])
+{
+    string a, b, c, d;
+    for (int i = 0; i < 4; ++i)
+    {
+        a += XOR(mtx.substr(i * 8 + 0, 8), k[i].substr(0, 8));
+        b += XOR(mtx.substr(i * 8 + 32, 8), k[i].substr(8, 8));
+        c += XOR(mtx.substr(i * 8 + 64, 8), k[i].substr(16, 8));
+        d += XOR(mtx.substr(i * 8 + 96, 8), k[i].substr(24, 8));
+    }
+    mtx = a + b + c + d;
 }
 
 
+void InvSubBytes(string& mtx)
+{
+    string out;
+    for (int i = 0; i < 16; ++i)
+    {
+        int col = (mtx[8 * i + 7] - '0') * 1 + (mtx[8 * i + 6] - '0') * 2 + (mtx[8 * i + 5] - '0') * 4 + (mtx[8 * i + 4] - '0') * 8;
+        int row = (mtx[8 * i + 3] - '0') * 1 + (mtx[8 * i + 2] - '0') * 2 + (mtx[8 * i + 1] - '0') * 4 + (mtx[8 * i + 0] - '0') * 8;
+        string val = RS_Box[row][col];
+        HtoB(val);
+        out += val;
+    }
+    mtx = out;
+}
 
+void InvMixColumns(string& mtx)
+{
+    string a = "0e", b = "0b", c = "0d", d = "09";
+    HtoB(a);
+    HtoB(b);
+    HtoB(c);
+    HtoB(d);
+    string out1, out2, out3, out4;
+    transpose(mtx);
+    for (int i = 0; i < 4; ++i)
+    {
+        out1 += XOR(XOR(XOR(GFMul(a, mtx.substr(32 * i + 0, 8)), GFMul(b, mtx.substr(32 * i + 8, 8))), GFMul(c, mtx.substr(32 * i + 16, 8))), GFMul(d, mtx.substr(32 * i + 24, 8)));
+        out2 += XOR(XOR(XOR(GFMul(d, mtx.substr(32 * i + 0, 8)), GFMul(a, mtx.substr(32 * i + 8, 8))), GFMul(b, mtx.substr(32 * i + 16, 8))), GFMul(c, mtx.substr(32 * i + 24, 8)));
+        out3 += XOR(XOR(XOR(GFMul(c, mtx.substr(32 * i + 0, 8)), GFMul(d, mtx.substr(32 * i + 8, 8))), GFMul(a, mtx.substr(32 * i + 16, 8))), GFMul(b, mtx.substr(32 * i + 24, 8)));
+        out4 += XOR(XOR(XOR(GFMul(b, mtx.substr(32 * i + 0, 8)), GFMul(c, mtx.substr(32 * i + 8, 8))), GFMul(d, mtx.substr(32 * i + 16, 8))), GFMul(a, mtx.substr(32 * i + 24, 8)));
+    }
+    mtx = out1 + out2 + out3 + out4;
+}
+
+
+//Encrypts plaintext using aes with key
 string AESencrypt(string iv, string pt)
 {
-    byte k[16];
-    byte in[16];
-    word w[44];
-    //cin >> pt >> iv;
-    unsigned short tempValue;
-    for (short int i = 0; i < 16; i++)
-    {
-        istringstream ost(iv.substr(i * 2, 2));
-        ost >> hex >> tempValue;
-        k[i] = tempValue;
-    }
-
+    string w[44];
     while (pt.length() < 32)
     {
         pt = '0' + pt;
     }
-    for (short int i = 0; i < 16; i++)
+    while (iv.length() < 32)
     {
-        istringstream ost(pt.substr(i * 2, 2));
-        ost >> hex >> tempValue;
-        in[i] = tempValue;
+        iv = '0' + iv;
     }
-    //pt = "54776F204F6E65204E696E652054776F", key = "5468617473206D79204B756E67204675";
-    KeyExpansion(k, w);
-    transpose(in);
-    word key[4];
+
+    KeyExpansion(iv, w);
+
+    HtoB(pt);
+    transpose(pt);
+    
+    string key[4];
     for (int i = 0; i < 4; ++i)
         key[i] = w[i];
-    AddRoundKey(in, key);
+    AddRoundKey(pt, key);
 
     for (int round = 1; round < 10; ++round)
     {
-        SubBytes(in);
-        ShiftRows(in);
-        MixColumns(in);
+        SubBytes(pt);
+        ShiftRows(pt);
+        MixColumns(pt);
         for (int i = 0; i < 4; ++i)
             key[i] = w[4 * round + i];
-        AddRoundKey(in, key);
+        AddRoundKey(pt, key);
     }
 
-    SubBytes(in);
-    ShiftRows(in);
+    SubBytes(pt);
+    ShiftRows(pt);
     for (int i = 0; i < 4; ++i)
         key[i] = w[4 * 10 + i];
-    AddRoundKey(in, key);
-    transpose(in);
+    AddRoundKey(pt, key);
+    
+    transpose(pt);
+    BtoH(pt);
 
-    stringstream s;
-    s.str("");
-    for (int i = 0; i < 16; ++i)
-    {
-        if (in[i].to_ulong() >= 0x10)
-            s << hex << in[i].to_ulong();
-        else
-            s << '0' << hex << in[i].to_ulong();
-    }
-    return s.str();
+    return pt;
 }
 
 
-
+////Decrypts ciphertext using aes with key
 string AESdecrypt(string iv, string ct)
 {
-    byte k[16];
-    byte in[16];
-    word w[44];
-    //cin >> ct >> iv;
-    unsigned short tempValue;
-    for (short int i = 0; i < 16; i++)
+    string w[44];
+    while (iv.length() < 32)
     {
-        istringstream ost(iv.substr(i * 2, 2));
-        ost >> hex >> tempValue;
-        k[i] = tempValue;
+        iv = '0' + iv;
     }
 
-    for (short int i = 0; i < 16; i++)
-    {
-        istringstream ost(ct.substr(i * 2, 2));
-        ost >> hex >> tempValue;
-        in[i] = tempValue;
-    }
     //pt = "54776F204F6E65204E696E652054776F", key = "5468617473206D79204B756E67204675";
-    KeyExpansion(k, w);
-    transpose(in);
-    word key[4];
+    KeyExpansion(iv, w);
+
+    HtoB(ct);
+    transpose(ct);
+
+    string key[4];
     for (int i = 0; i < 4; ++i)
         key[i] = w[4 * 10 + i];
-    AddRoundKey(in, key);
+    AddRoundKey(ct, key);
 
     for (int round = 9; round > 0; --round)
     {
-        ShiftRows(in);
-        ShiftRows(in);
-        ShiftRows(in);
-        InvSubBytes(in);
+        ShiftRows(ct);
+        ShiftRows(ct);
+        ShiftRows(ct);
+        InvSubBytes(ct);
         for (int i = 0; i < 4; ++i)
             key[i] = w[4 * round + i];
-        AddRoundKey(in, key);
-        InvMixColumns(in);
+        AddRoundKey(ct, key);
+        InvMixColumns(ct);
     }
 
-    ShiftRows(in);
-    ShiftRows(in);
-    ShiftRows(in);
-    InvSubBytes(in);
+    ShiftRows(ct);
+    ShiftRows(ct);
+    ShiftRows(ct);
+    InvSubBytes(ct);
     for (int i = 0; i < 4; ++i)
         key[i] = w[i];
-    AddRoundKey(in, key);
-    transpose(in);
+    AddRoundKey(ct, key);
 
-    stringstream s;
-    s.str("");
-    for (int i = 0; i < 16; ++i)
-    {
-        if (in[i].to_ulong() >= 0x10)
-            s << hex << in[i].to_ulong();
-        else
-            s << '0' << hex << in[i].to_ulong();
-    }
-    return s.str();
-}
+    transpose(ct);
+    BtoH(ct);
 
-
-
-void hex_toLL(string hex, long long int out)
-{
-    out = 0;
-    unordered_map<char, int> mp;
-    mp['0'] = 0x00;
-    mp['1'] = 0x01;
-    mp['2'] = 0x02;
-    mp['3'] = 0x03;
-    mp['4'] = 0x04;
-    mp['5'] = 0x05;
-    mp['6'] = 0x06;
-    mp['7'] = 0x07;
-    mp['8'] = 0x08;
-    mp['9'] = 0x09;
-    mp['a'] = 0x0a;
-    mp['b'] = 0x0b;
-    mp['c'] = 0x0c;
-    mp['d'] = 0x0d;
-    mp['e'] = 0x0e;
-    mp['f'] = 0x0f;
-    int a = hex.length();
-    out = mp[a - 1];
-    for (int i = a - 2; a >= 0; --a)
-    {
-        out << 4;
-        out += mp[i];
-    }
+    return ct;
 }
